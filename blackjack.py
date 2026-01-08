@@ -85,8 +85,8 @@ def construir_lista() -> list:
             print("Error, ingrese un número valido")
             continue
         ia_facil = int(ia_facil)
-        if ia_facil < 0:
-            print("No se permiten numeros negativos")
+        if ia_facil <= 0:
+            print("Debe haber minimo 1 ia_facil")
             continue
         break
 
@@ -100,8 +100,8 @@ def construir_lista() -> list:
             print("Error, ingrese un número valido")
             continue
         ia_medio = int(ia_medio)
-        if ia_medio < 0:
-            print("No se permiten numeros negativos")
+        if ia_medio <= 0:
+            print("Debe haber minimo 1 ia_medio")
             continue
         break
 
@@ -115,8 +115,8 @@ def construir_lista() -> list:
             print("Error, ingrese un número valido")
             continue
         ia_dificil = int(ia_dificil)
-        if ia_dificil < 0:
-            print("No se permiten numeros negativos")
+        if ia_dificil <= 0:
+            print("Debe haber minimo 1 ia_dificil")
             continue
         break
 
@@ -141,7 +141,7 @@ def logica_humano(jugador: dict) -> dict:
             opcion = input("quieres plantarte? s/n: ")
         match opcion:
             case "s":
-                print(f"{jugador["jugador"]} se PLANTA")
+                print(f"{jugador["jugador"]} se PLANTA con {jugador["puntuacion"]}")
                 jugador["plantado"] = True
                 break
             case "n":
@@ -195,7 +195,7 @@ def logica_IA_facil(jugador: dict) -> dict:
             print(f"Puntuacion de {jugador["jugador"]}: {jugador["puntuacion"]}")
     else:
         jugador["plantado"] = True
-        print(f"La {jugador["jugador"]} se PLANTA!")
+        print(f"La {jugador["jugador"]} se PLANTA! con {jugador["puntuacion"]}")
     return jugador
 
 
@@ -225,10 +225,10 @@ def logica_IA_medio(jugador: dict) -> dict:
                 print(f"Puntuacion de {jugador["jugador"]}: {jugador["puntuacion"]}")
         else:
             jugador["plantado"] = True
-            print(f"La {jugador["jugador"]} se PLANTA!")
+            print(f"La {jugador["jugador"]} se PLANTA! con {jugador["puntuacion"]}")
     else:
         jugador["plantado"] = True
-        print(f"La {jugador["jugador"]} se PLANTA!")
+        print(f"La {jugador["jugador"]} se PLANTA! con {jugador["puntuacion"]}")
     return jugador
 
 
@@ -262,7 +262,7 @@ def logica_IA_dificil(jugador: dict) -> dict:
                     )
             else:
                 jugador["plantado"] = True
-                print(f"{jugador["jugador"]} se PLANTA")
+                print(f"{jugador["jugador"]} se PLANTA con {jugador["puntuacion"]}")
         else:
             is_pedir = tirar_IA_dificil("defensiva")
             if is_pedir:
@@ -278,9 +278,9 @@ def logica_IA_dificil(jugador: dict) -> dict:
                     )
             else:
                 jugador["plantado"] = True
-                print(f"IA_dificil se PLANTA!")
+                print(f"IA_dificil se PLANTA! con {jugador["puntuacion"]}")
     else:  # significa que tiene 21, se planta
-        print(f"{jugador["jugador"]} se PLANTA!")
+        print(f"{jugador["jugador"]} se PLANTA! con {jugador["puntuacion"]}")
         jugador["plantado"] = True
     return jugador
 
