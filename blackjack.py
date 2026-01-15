@@ -284,21 +284,26 @@ def logica_IA_dificil(jugador: dict) -> dict:
         jugador["plantado"] = True
     return jugador
 
-
 def is_fin_partida(jugadores: list) -> bool:
-    """
-    Recorre todos los jugadores.
-    RETORNA:
-        True -> todos los jugadores se han plantado
-        False -> aún queda algun jugador que no se ha plantado
-    """
-    breaker = True
-    for jugador in jugadores:
-        if not jugador["plantado"]:
-            breaker = False
-        if jugador["puntuacion"] == 21:
-            return True
-    return breaker
+    activos = [j for j in jugadores if not j["plantado"]]
+
+    # Debe quedar solo un jugador activo
+    if len(activos) != 1:
+        return False
+
+    ganador = activos[0]
+
+    # No debe pasarse de 21
+    if ganador["puntuacion"] > 21:
+        return False
+
+    # Debe tener más puntuación que todos los demás
+    for j in jugadores:
+        if j != ganador and j["puntuacion"] >= ganador["puntuacion"] and j["puntuacion"] <= 21:
+            return False
+
+    return True
+
 
 
 breaker = False
