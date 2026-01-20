@@ -20,7 +20,7 @@ def tirar_IA_dificil(actitud: str) -> bool:
     """
     Determina si la IA pide carta o se planta teniendo en cuenta la actitud agresiva/defensiva
     con una probabilidad de 70/30 - 30/70
-    Retora:
+    Retorna:
         True -> La IA pide carta
         False -> La IA se planta
     """
@@ -41,9 +41,12 @@ def tirar_IA_dificil(actitud: str) -> bool:
 
 
 def quienGana(IA_facil, IA_medio, IA_dificil) -> str:
+    """
+    Rellena el atributo "Resultado" de las IAs segun el "Resultado_Final" de la partida
+    """
     jugadores = [IA_facil, IA_medio, IA_dificil]
 
-    # Obtenemos maxima puntuacion
+    # Obtenemos maxima puntuacion sin pasarse de 21
     max_puntuacion = max(j["Puntuacion_Final"] for j in jugadores if j["Puntuacion_Final"] <= 21)
 
     # Cuantos jugadores tiene la maxima puntacion de la partida (ganadores)
@@ -74,14 +77,9 @@ def logica_IA_facil(jugador: dict) -> dict:
         jugador["Cartas"] += 1
         jugador["Puntuacion_Final"] += dado
         if jugador["Puntuacion_Final"] > 21:
-            # print(f"{jugador["jugador"]} se ha pasado, PIERDE!")
             jugador["Plantado"] = True
-        # else:
-        # print(f"{jugador["jugador"]} tira {dado}")
-        # print(f"Puntuacion de {jugador["jugador"]}: {jugador["puntuacion"]}")
     else:
         jugador["Plantado"] = True
-        # print(f"La {jugador["jugador"]} se PLANTA! con {jugador["puntuacion"]}")
     return jugador
 
 
@@ -95,28 +93,18 @@ def logica_IA_medio(jugador: dict) -> dict:
         jugador["Cartas"] += 1
         jugador["Puntuacion_Final"] += dado
         if jugador["Puntuacion_Final"] > 21:
-            # print(f"{jugador["jugador"]} se ha pasado, PIERDE!")
             jugador["Plantado"] = True
-        # else:
-        #     print(f"{jugador["jugador"]} tira {dado}")
-        #     print(f"Puntuacion de {jugador["jugador"]}: {jugador["puntuacion"]}")
     elif jugador["Puntuacion_Final"] < 20:
         if tirar_prob50():
             dado = tirar()
             jugador["Cartas"] += 1
             jugador["Puntuacion_Final"] += dado
             if jugador["Puntuacion_Final"] > 21:
-                # print(f"{jugador["jugador"]} se ha pasado, PIERDE!")
                 jugador["Plantado"] = True
-            # else:
-            #     print(f"{jugador["jugador"]} tira {dado}")
-            #     print(f"Puntuacion de {jugador["jugador"]}: {jugador["puntuacion"]}")
         else:
             jugador["Plantado"] = True
-            # print(f"La {jugador["jugador"]} se PLANTA! con {jugador["puntuacion"]}")
     else:
         jugador["Plantado"] = True
-        # print(f"La {jugador["jugador"]} se PLANTA! con {jugador["puntuacion"]}")
     return jugador
 
 
@@ -130,11 +118,7 @@ def logica_IA_dificil(jugador: dict) -> dict:
         jugador["Cartas"] += 1
         jugador["Puntuacion_Final"] += dado
         if jugador["Puntuacion_Final"] > 21:
-            # print(f"{jugador["jugador"]} se ha pasado, PIERDE!")
             jugador["Plantado"] = True
-        # else:
-        # print(f"{jugador["jugador"]} tira {dado}")
-        # print(f"Puntuacion_Final de {jugador["jugador"]}: {jugador["puntuacion"]}")
     elif jugador["Puntuacion_Final"] < 20:
         # verifica si hay alguna IA con mas de 17
         if IA_facil["Puntuacion_Final"] > 17 or IA_medio["Puntuacion_Final"] > 17:
@@ -144,16 +128,9 @@ def logica_IA_dificil(jugador: dict) -> dict:
                 jugador["Cartas"] += 1
                 jugador["Puntuacion_Final"] += dado
                 if jugador["Puntuacion_Final"] > 21:
-                    # print(f"{jugador["jugador"]} se ha pasado, PIERDE!")
                     jugador["Plantado"] = True
-                # else:
-                #     print(f"{jugador["jugador"]} tira {dado}")
-                #     print(
-                #         f"Puntuacion de {jugador["jugador"]}: {jugador["puntuacion"]}"
-                #     )
             else:
                 jugador["Plantado"] = True
-                # print(f"{jugador["jugador"]} se PLANTA con {jugador["puntuacion"]}")
         else:
             is_pedir = tirar_IA_dificil("defensiva")
             if is_pedir:
@@ -161,33 +138,28 @@ def logica_IA_dificil(jugador: dict) -> dict:
                 jugador["Cartas"] += 1
                 jugador["Puntuacion_Final"] += dado
                 if jugador["Puntuacion_Final"] > 21:
-                    # print(f"{jugador["jugador"]} se ha pasado, PIERDE!")
                     jugador["Plantado"] = True
-                # else:
-                #     print(f"{jugador["jugador"]} tira {dado}")
-                #     print(
-                #         f"Puntuacion de {jugador["jugador"]}: {jugador["puntuacion"]}"
-                #     )
             else:
                 jugador["Plantado"] = True
-                # print(f"IA_dificil se PLANTA! con {jugador["puntuacion"]}")
     else:  # significa que tiene 21, se planta
-        # print(f"{jugador["jugador"]} se PLANTA! con {jugador["puntuacion"]}")
         jugador["Plantado"] = True
     return jugador
 
 
 def is_fin_partida(IA_facil, IA_medio, IA_dificil) -> bool:
-    # FIXME siempre devuelve False
+    """
+    Se termina(retorna True) la partida si:
+        -> Hay una IA con 21
+        -> Todas las IAs se han plantado
+        -> Solo queda una IA activa y tiene mas puntuacion que el resto,
+           sin contar los que se han pasado de 21
+    si no se dan estas condiciones retorna False y la partida sigue
+    """
     jugadores = [IA_facil, IA_medio, IA_dificil]
     ganador = [j for j in jugadores if j["Puntuacion_Final"] == 21]
 
     if len(ganador) == 1:
         return True
-
-    # is_todos_plantado = all(j["Plantado"] for j in jugadores)
-    # if is_todos_plantado:
-    #     return True
 
     activos = [j for j in jugadores if not j["Plantado"]]
 
@@ -195,13 +167,17 @@ def is_fin_partida(IA_facil, IA_medio, IA_dificil) -> bool:
         return True
     elif len(activos) == 1:
         posible_ganador = activos[0]
-        max_puntuacion = max(j["Puntuacion_Final"] for j in jugadores)
+        max_puntuacion = max(j["Puntuacion_Final"] for j in jugadores if j["Puntuacion_Final"] <= 21)
         if max_puntuacion == posible_ganador["Puntuacion_Final"]:
             return True
     return False
 
 
 def menu_dataset():
+    """
+    Menu para seleccionar la cantidad de partidas que el usuario quiere generar.
+    Retorna esa cantidad
+    """
     while True:
         print("=====GENERADOR DE DATASET=====")
         print("1. Generar dataset muy pequeño -> (1 partida)")
