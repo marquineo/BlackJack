@@ -44,7 +44,7 @@ def quienGana(IA_facil, IA_medio, IA_dificil) -> str:
     jugadores = [IA_facil, IA_medio, IA_dificil]
 
     # Obtenemos maxima puntuacion
-    max_puntuacion = max(j["Puntuacion_Final"] for j in jugadores)
+    max_puntuacion = max(j["Puntuacion_Final"] for j in jugadores if j["Puntuacion_Final"] <= 21)
 
     # Cuantos jugadores tiene la maxima puntacion de la partida (ganadores)
     ganadores = [j for j in jugadores if j["Puntuacion_Final"] == max_puntuacion]
@@ -178,36 +178,27 @@ def logica_IA_dificil(jugador: dict) -> dict:
 
 
 def is_fin_partida(IA_facil, IA_medio, IA_dificil) -> bool:
-    #FIXME siempre devuelve False
-    activos = []
-    if IA_facil["Plantado"]:
-        activos.append(IA_facil)
-    if IA_medio["Plantado"]:
-        activos.append(IA_medio)
-    if IA_dificil["Plantado"]:
-        activos.append(IA_dificil)
-
-    # Debe quedar solo un jugador activo
-    if len(activos) != 1:
-        return False
-
-    ganador = activos[0]
-
-    # No debe pasarse de 21
-    if ganador["Puntuacion_Final"] > 21:
-        return False
-
-    # Debe tener más puntuación que todos los demás
+    # FIXME siempre devuelve False
     jugadores = [IA_facil, IA_medio, IA_dificil]
-    for j in jugadores:
-        if (
-            j != ganador
-            and j["Puntuacion_Final"] >= ganador["Puntuacion_Final"]
-            and j["Puntuacion_Final"] <= 21
-        ):
-            return False
+    ganador = [j for j in jugadores if j["Puntuacion_Final"] == 21]
 
-    return True
+    if len(ganador) == 1:
+        return True
+
+    # is_todos_plantado = all(j["Plantado"] for j in jugadores)
+    # if is_todos_plantado:
+    #     return True
+
+    activos = [j for j in jugadores if not j["Plantado"]]
+
+    if len(activos) == 0:
+        return True
+    elif len(activos) == 1:
+        posible_ganador = activos[0]
+        max_puntuacion = max(j["Puntuacion_Final"] for j in jugadores)
+        if max_puntuacion == posible_ganador["Puntuacion_Final"]:
+            return True
+    return False
 
 
 def menu_dataset():
@@ -219,77 +210,94 @@ def menu_dataset():
         print("4. Generar dataset grande -> (1000 partidas)")
         print("5. Generar dataset muy grande -> (10000 partidas)")
         opcion = input("Selecciona tamaño de dataset (1-5):")
-        if not opcion.isdigit():
-            print("La opción debe ser un número")
-            continue
-        opcion = int(opcion)
-        if opcion > 5 or opcion < 1:
-            print("Opcion no válida (1-5)")
-            continue
-        return opcion
 
+        match (opcion):
+            case "1":
+                cantidad_partidas = 1
+            case "2":
+                cantidad_partidas = 10
+            case "3":
+                cantidad_partidas = 100
+            case "4":
+                cantidad_partidas = 1000
+            case "5":
+                cantidad_partidas = 10000
+            case _:
+                print("Opcion no válida (1-5)")
+                continue
+        print(f"cant: {cantidad_partidas}")
+        return cantidad_partidas
 
-IA_facil = {
-    "ID_partida": 0,
-    "Tipo_IA": "IA_facil",
-    "Puntuacion_Final": 0,
-    "Resultado": "",
-    "Cartas": 0,
-    "Plantado": False,
-}
-IA_medio = {
-    "ID_partida": 0,
-    "Tipo_IA": "IA_medio",
-    "Puntuacion_Final": 0,
-    "Resultado": "",
-    "Cartas": 0,
-    "Plantado": False,
-}
-IA_dificil = {
-    "ID_partida": 0,
-    "Tipo_IA": "IA_dificil",
-    "Puntuacion_Final": 0,
-    "Resultado": "",
-    "Cartas": 0,
-    "Plantado": False,
-}
-breaker = False
-contador_ronda = 0
+datos = []
 print("=====Bienvenido al BlackJack!======")
 try:
     tamanyo_dataset = menu_dataset()
-    for _ in range(tamanyo_dataset):
-        IA_facil["ID_partida"] += 1
-        IA_medio["ID_partida"] += 1
-        IA_dificil["ID_partida"] += 1
+    for i in range(tamanyo_dataset):
+        # Construimos IAs
+        IA_facil = {
+            "ID_partida": i+1,
+            "Tipo_IA": "IA_facil",
+            "Puntuacion_Final": 0,
+            "Resultado": "",
+            "Cartas": 0,
+            "Plantado": False,
+        }
+        IA_medio = {
+            "ID_partida": i+1,
+            "Tipo_IA": "IA_medio",
+            "Puntuacion_Final": 0,
+            "Resultado": "",
+            "Cartas": 0,
+            "Plantado": False,
+        }
+        IA_dificil = {
+            "ID_partida": i+1,
+            "Tipo_IA": "IA_dificil",
+            "Puntuacion_Final": 0,
+            "Resultado": "",
+            "Cartas": 0,
+            "Plantado": False,
+        }
+        breaker = False
         print(f"*****PARTIDA {IA_dificil["ID_partida"]}*****")
         while not breaker:
             # IA_facil
             if IA_facil["Plantado"] == False:
-                print("facil")
                 IA_facil = logica_IA_facil(IA_facil)
+                if IA_facil["Puntuacion_Final"] == 21:
+                    breaker = is_fin_partida(IA_facil, IA_medio, IA_dificil)
+                    continue
             # IA_medio
             if IA_medio["Plantado"] == False:
                 IA_medio = logica_IA_facil(IA_medio)
+                if IA_medio["Puntuacion_Final"] == 21:
+                    breaker = is_fin_partida(IA_facil, IA_medio, IA_dificil)
+                    continue
             # IA_dificil
             if IA_dificil["Plantado"] == False:
                 IA_dificil = logica_IA_facil(IA_dificil)
-            datos = [IA_facil,IA_medio,IA_dificil]
+                if IA_dificil["Puntuacion_Final"] == 21:
+                    breaker = is_fin_partida(IA_facil, IA_medio, IA_dificil)
+                    continue
             breaker = is_fin_partida(IA_facil, IA_medio, IA_dificil)
-            print(breaker)
-    IA_facil, IA_medio, IA_dificil = quienGana(IA_facil, IA_medio, IA_dificil)
-
+        IA_facil, IA_medio, IA_dificil = quienGana(IA_facil, IA_medio, IA_dificil)
+        print(f"facil ->{IA_facil}")
+        print(f"medio ->{IA_medio}")
+        print(f"dificil ->{IA_dificil}")
+        datos.append(IA_facil)
+        datos.append(IA_medio)
+        datos.append(IA_dificil)
     with open("dataset.csv", "w", newline="", encoding="utf-8") as file:
         fieldnames = [
-            "ID_Partida",
+            "ID_partida",
             "Tipo_IA",
             "Puntuacion_Final",
             "Resultado",
             "Cartas",
             "Plantado",
         ]
-        escritor = csv.writer(file,fieldnames=fieldnames)
-        escritor.writerow(fieldnames)
+        escritor = csv.DictWriter(file,fieldnames=fieldnames)
+        escritor.writeheader()
         escritor.writerows(datos)
 
 except ValueError as error:
