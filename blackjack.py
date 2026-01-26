@@ -47,7 +47,9 @@ def quienGana(IA_facil, IA_medio, IA_dificil) -> str:
     jugadores = [IA_facil, IA_medio, IA_dificil]
 
     # Obtenemos maxima puntuacion sin pasarse de 21
-    max_puntuacion = max(j["Puntuacion_Final"] for j in jugadores if j["Puntuacion_Final"] <= 21)
+    max_puntuacion = max(
+        j["Puntuacion_Final"] for j in jugadores if j["Puntuacion_Final"] <= 21
+    )
 
     # Cuantos jugadores tiene la maxima puntacion de la partida (ganadores)
     ganadores = [j for j in jugadores if j["Puntuacion_Final"] == max_puntuacion]
@@ -167,7 +169,9 @@ def is_fin_partida(IA_facil, IA_medio, IA_dificil) -> bool:
         return True
     elif len(activos) == 1:
         posible_ganador = activos[0]
-        max_puntuacion = max(j["Puntuacion_Final"] for j in jugadores if j["Puntuacion_Final"] <= 21)
+        max_puntuacion = max(
+            j["Puntuacion_Final"] for j in jugadores if j["Puntuacion_Final"] <= 21
+        )
         if max_puntuacion == posible_ganador["Puntuacion_Final"]:
             return True
     return False
@@ -204,6 +208,7 @@ def menu_dataset():
         print(f"cant: {cantidad_partidas}")
         return cantidad_partidas
 
+
 datos = []
 print("=====Bienvenido al BlackJack!======")
 try:
@@ -211,7 +216,7 @@ try:
     for i in range(tamanyo_dataset):
         # Construimos IAs
         IA_facil = {
-            "ID_partida": i+1,
+            "ID_partida": i + 1,
             "Tipo_IA": "IA_facil",
             "Puntuacion_Final": 0,
             "Resultado": "",
@@ -219,7 +224,7 @@ try:
             "Plantado": False,
         }
         IA_medio = {
-            "ID_partida": i+1,
+            "ID_partida": i + 1,
             "Tipo_IA": "IA_medio",
             "Puntuacion_Final": 0,
             "Resultado": "",
@@ -227,7 +232,7 @@ try:
             "Plantado": False,
         }
         IA_dificil = {
-            "ID_partida": i+1,
+            "ID_partida": i + 1,
             "Tipo_IA": "IA_dificil",
             "Puntuacion_Final": 0,
             "Resultado": "",
@@ -272,7 +277,7 @@ try:
             "Cartas",
             "Plantado",
         ]
-        escritor = csv.DictWriter(file,fieldnames=fieldnames)
+        escritor = csv.DictWriter(file, fieldnames=fieldnames)
         escritor.writeheader()
         escritor.writerows(datos)
 
