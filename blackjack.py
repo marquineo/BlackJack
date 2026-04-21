@@ -27,13 +27,13 @@ def tirar_IA_dificil(actitud: str) -> bool:
     rand = random.randint(1, 10)
     match actitud:
         case "agresiva":
-            print("IA_dificil opta por una jugada agresiva")
+            # print("IA_dificil opta por una jugada agresiva")
             if rand > 3:
                 return True
             else:
                 return False
         case "defensiva":
-            print("IA_dificil opta por una jugada defensiva")
+            # print("IA_dificil opta por una jugada defensiva")
             if rand > 7:
                 return True
             else:
@@ -41,18 +41,17 @@ def tirar_IA_dificil(actitud: str) -> bool:
 
 
 def quienGana(IA_facil, IA_medio, IA_dificil) -> str:
-    """
-    Rellena el atributo "Resultado" de las IAs segun el "Resultado_Final" de la partida
-    """
     jugadores = [IA_facil, IA_medio, IA_dificil]
 
-    # Obtenemos maxima puntuacion sin pasarse de 21
+    # Añadimos default=0 por si todos se pasan de 21
     max_puntuacion = max(
-        j["Puntuacion_Final"] for j in jugadores if j["Puntuacion_Final"] <= 21
+        (j["Puntuacion_Final"] for j in jugadores if j["Puntuacion_Final"] <= 21), 
+        default=0
     )
 
-    # Cuantos jugadores tiene la maxima puntacion de la partida (ganadores)
-    ganadores = [j for j in jugadores if j["Puntuacion_Final"] == max_puntuacion]
+    # Si max_puntuacion es 0, significa que todos perdieron
+    # El resto del código funcionará bien: nadie tendrá == 0 y todos irán a "Derrota"
+    ganadores = [j for j in jugadores if j["Puntuacion_Final"] == max_puntuacion and max_puntuacion > 0]
     es_empate = len(ganadores) > 1
 
     # actualizamos atributo
@@ -169,12 +168,14 @@ def is_fin_partida(IA_facil, IA_medio, IA_dificil) -> bool:
         return True
     elif len(activos) == 1:
         posible_ganador = activos[0]
+        # Añadimos default=0 aquí también
         max_puntuacion = max(
-            j["Puntuacion_Final"] for j in jugadores if j["Puntuacion_Final"] <= 21
+            (j["Puntuacion_Final"] for j in jugadores if j["Puntuacion_Final"] <= 21),
+            default=0
         )
-        if max_puntuacion == posible_ganador["Puntuacion_Final"]:
+        if max_puntuacion == posible_ganador["Puntuacion_Final"] and max_puntuacion > 0:
             return True
-    return False
+        return False
 
 
 def menu_dataset():
@@ -205,12 +206,12 @@ def menu_dataset():
             case _:
                 print("Opcion no válida (1-5)")
                 continue
-        print(f"cant: {cantidad_partidas}")
+        # print(f"cant: {cantidad_partidas}")
         return cantidad_partidas
 
 
 datos = []
-print("=====Bienvenido al BlackJack!======")
+# print("=====Bienvenido al BlackJack!======")
 try:
     tamanyo_dataset = menu_dataset()
     for i in range(tamanyo_dataset):
@@ -240,7 +241,7 @@ try:
             "Plantado": False,
         }
         breaker = False
-        print(f"*****PARTIDA {IA_dificil["ID_partida"]}*****")
+        #print(f"*****PARTIDA {IA_dificil["ID_partida"]}*****")
         while not breaker:
             # IA_facil
             if IA_facil["Plantado"] == False:
@@ -250,21 +251,21 @@ try:
                     continue
             # IA_medio
             if IA_medio["Plantado"] == False:
-                IA_medio = logica_IA_facil(IA_medio)
+                IA_medio = logica_IA_medio(IA_medio)
                 if IA_medio["Puntuacion_Final"] == 21:
                     breaker = is_fin_partida(IA_facil, IA_medio, IA_dificil)
                     continue
             # IA_dificil
             if IA_dificil["Plantado"] == False:
-                IA_dificil = logica_IA_facil(IA_dificil)
+                IA_dificil = logica_IA_dificil(IA_dificil)
                 if IA_dificil["Puntuacion_Final"] == 21:
                     breaker = is_fin_partida(IA_facil, IA_medio, IA_dificil)
                     continue
             breaker = is_fin_partida(IA_facil, IA_medio, IA_dificil)
         IA_facil, IA_medio, IA_dificil = quienGana(IA_facil, IA_medio, IA_dificil)
-        print(f"facil ->{IA_facil}")
-        print(f"medio ->{IA_medio}")
-        print(f"dificil ->{IA_dificil}")
+        # print(f"facil ->{IA_facil}")
+        # print(f"medio ->{IA_medio}")
+        # print(f"dificil ->{IA_dificil}")
         datos.append(IA_facil)
         datos.append(IA_medio)
         datos.append(IA_dificil)
